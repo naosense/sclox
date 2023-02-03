@@ -46,31 +46,29 @@ object Expr {
   }
 
   trait Visitor[R] {
-    def visitAssignExpr(expr: Assign): R = visit(expr)
+    def visitAssignExpr(expr: Assign): R
 
-    def visitBinaryExpr(expr: Binary): R = visit(expr)
+    def visitBinaryExpr(expr: Binary): R
 
-    def visitCallExpr(expr: Call): R = visit(expr)
+    def visitCallExpr(expr: Call): R
 
-    def visitGetExpr(expr: Get): R = visit(expr)
+    def visitGetExpr(expr: Get): R
 
-    def visitGroupingExpr(expr: Grouping): R = visit(expr)
+    def visitGroupingExpr(expr: Grouping): R
 
-    def visitLiteralExpr(expr: Literal): R = visit(expr)
+    def visitLiteralExpr(expr: Literal): R
 
-    def visitLogicalExpr(expr: Logical): R = visit(expr)
+    def visitLogicalExpr(expr: Logical): R
 
-    def visitSetExpr(expr: Set): R = visit(expr)
+    def visitSetExpr(expr: Set): R
 
-    def visitSuperExpr(expr: Super): R = visit(expr)
+    def visitSuperExpr(expr: Super): R
 
-    def visitThisExpr(expr: This): R = visit(expr)
+    def visitThisExpr(expr: This): R
 
-    def visitUnaryExpr(expr: Unary): R = visit(expr)
+    def visitUnaryExpr(expr: Unary): R
 
-    def visitVariableExpr(expr: Variable): R = visit(expr)
-
-    def visit(expr: Expr): R
+    def visitVariableExpr(expr: Variable): R
   }
 }
 

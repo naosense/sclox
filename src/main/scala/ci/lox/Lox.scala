@@ -5,7 +5,9 @@ import java.nio.charset.Charset
 import java.nio.file.{Files, Paths}
 
 object Lox {
-  private var hasError = false
+  private val interpreter = new Interpreter()
+  private var hadError = false
+  private var hadRuntimeError = false
 
   def main(args: Array[String]): Unit = {
     if (args.length > 1) {
@@ -21,7 +23,8 @@ object Lox {
   private def runFile(path: String): Unit = {
     val bytes = Files.readAllBytes(Paths.get(path))
     run(new String(bytes, Charset.defaultCharset()))
-    if (hasError) System.exit(65)
+    if (hadError) System.exit(65)
+    if (hadRuntimeError) System.exit(70)
   }
 
   private def runPrompt(): Unit = {
@@ -31,31 +34,42 @@ object Lox {
     while (!done) {
       print("> ")
       val line = reader.readLine()
-      if (line == null) done = true
+      if (line == null || line == "exit") done = true
       if (!done) run(line)
-      hasError = false
+      hadError = false
     }
   }
 
-  private def run(str: String) = {
+  private def run(str: String): Unit = {
     val scanner = new Scanner(str)
     val tokens = scanner.scanTokens()
-    tokens.foreach(println)
+    // tokens.foreach(println)
+    val parser = new Parser(tokens)
+    val expression = parser.parse()
+
+    if (hadError) return
+    // println(new AstPrinter().print(expression))
+    interpreter.interpret(expression)
   }
 
   def error(line: Int, message: String): Unit = {
     report(line, "", message)
   }
 
-  private def report(line : Int, where: String, message: String) = {
+  private def report(line: Int, where: String, message: String) = {
     System.err.println(s"[line $line] Error $where: $message")
-    hasError = true
+    hadError = true
   }
 
   def error(token: Token, message: String): Unit = {
     if (token.tpe == EOF)
       report(token.line, " at end", message)
     else
-      report(token.line, s" at '${token.lexeme}'", message)
+      report(token.line, s" at '${ token.lexeme }'", message)
+  }
+
+  def runtimeError(error: RuntimeError): Unit = {
+    println(error.message + s"\n[line ${ error.token.line }]")
+    hadRuntimeError = true
   }
 }

@@ -1,7 +1,16 @@
 package ci.lox
 
+
 class Parser(tokens: IndexedSeq[Token]) {
   private var current = 0
+
+  def parse(): Expr = {
+    try {
+      expression()
+    } catch {
+      case _:ParserError => null
+    }
+  }
 
   private def expression() = equality()
 
@@ -74,7 +83,7 @@ class Parser(tokens: IndexedSeq[Token]) {
       return Expr.Grouping(expr)
     }
 
-    throw new IllegalStateException()
+    throw error(peek(), "Expect expression.")
   }
 
   private def isMatch(types: TokenType*): Boolean = {
@@ -108,6 +117,19 @@ class Parser(tokens: IndexedSeq[Token]) {
   private def error(token: Token, message: String) = {
     Lox.error(token, message)
     new ParserError()
+  }
+
+  private def synchronize(): Unit = {
+    advance()
+    while (!isAtEnd()) {
+      if (previous().tpe == SEMICOLON) return
+
+      peek().tpe match {
+        case CLASS | FUN | VAR | FOR | IF | WHILE | PRINT | RETURN => return
+      }
+
+      advance()
+    }
   }
 
   class ParserError extends RuntimeException
